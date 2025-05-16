@@ -177,6 +177,13 @@ struct StaggeredGrid<Content: View, T: Identifiable>: View where T: Hashable {
 struct CachedAsyncImage: View {
     @Binding var image: Image?
 
+    private let randomShimmerHeight: CGFloat
+
+    init(image: Binding<Image?>) {
+        self._image = image
+        self.randomShimmerHeight = CGFloat(Int.random(in: 50..<100))
+    }
+
     var body: some View {
         Group {
             if let image = image {
@@ -186,8 +193,37 @@ struct CachedAsyncImage: View {
                     .cornerRadius(10)
                     .clipped()
             } else {
-                ProgressView()
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color.gray.opacity(0.8))
+                    .redacted(reason: .placeholder)
+                    .frame(height: randomShimmerHeight)
+                    .shimmer()
             }
         }
+    }
+}
+
+struct Shimmer: ViewModifier {
+    @State var isInitialState: Bool = true
+
+    func body(content: Content) -> some View {
+        content
+            .mask {
+                LinearGradient(
+                    gradient: .init(colors: [.black.opacity(0.4), .black, .black.opacity(0.4)]),
+                    startPoint: (isInitialState ? .init(x: -0.3, y: -0.3) : .init(x: 1, y: 1)),
+                    endPoint: (isInitialState ? .init(x: 0, y: 0) : .init(x: 1.3, y: 1.3))
+                )
+            }
+            .animation(.linear(duration: 1.5).delay(0.25).repeatForever(autoreverses: false), value: isInitialState)
+            .onAppear() {
+                isInitialState = false
+            }
+    }
+}
+
+extension View {
+    func shimmer() -> some View {
+        self.modifier(Shimmer())
     }
 }
