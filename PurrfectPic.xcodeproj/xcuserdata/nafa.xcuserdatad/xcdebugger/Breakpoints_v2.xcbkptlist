@@ -7,32 +7,32 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "A4246086-2BFA-4368-9F81-3827299F5264"
-            shouldBeEnabled = "Yes"
+            uuid = "EFD61EE8-009B-496F-9D3F-D3750ECE85E4"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "PurrfectPic/HomeView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "61"
-            endingLineNumber = "61"
-            landmarkName = "catImageUrl(for:)"
+            startingLineNumber = "53"
+            endingLineNumber = "53"
+            landmarkName = "getAll()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "EFD61EE8-009B-496F-9D3F-D3750ECE85E4"
+            uuid = "4A186D63-BA01-4CEC-9D92-EE90BD22C882"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "PurrfectPic/HomeView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "35"
-            endingLineNumber = "35"
-            landmarkName = "getAll()"
+            startingLineNumber = "34"
+            endingLineNumber = "34"
+            landmarkName = "fetchData(from:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
