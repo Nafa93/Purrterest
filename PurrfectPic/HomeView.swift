@@ -32,7 +32,7 @@ final class CatRepository {
     }
 
     func getAll() async throws -> [Cat] {
-        try await networkManager.fetchData(from: "https://cataas.com/api/cats?limit=10")
+        try await networkManager.fetchData(from: "https://cataas.com/api/cats?limit=30")
     }
 }
 
@@ -49,6 +49,8 @@ final class CatRepository {
         Task {
             do {
                 cats = try await repository.getAll()
+
+                print(cats.map { $0.id })
             } catch {
                 print(error)
             }
@@ -63,39 +65,27 @@ final class CatRepository {
 struct HomeView: View {
     var viewModel: HomeViewModel = HomeViewModel()
 
-    let columns = Array(
-        repeating: GridItem(.flexible()),
-        count: 3
-    )
-
     var body: some View {
-        ScrollView(.vertical) {
-            LazyVGrid(columns: columns, spacing: 16) {
-                ForEach(viewModel.cats) { cat in
-
-                    AsyncImage(url: viewModel.catImageUrl(for: cat.id)) { phase in
-                        switch phase {
-                            case .empty:
-                                ProgressView()
-                            case .success(let image):
-                                image
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .clipped()
-                            case .failure(let error):
-                                Image(systemName: "photo") // Error fallback
-                                    .onAppear {
-                                        print(error.localizedDescription)
-                                    }
-                            @unknown default:
-                                EmptyView()
-                        }
-                    }
-                    .frame(maxWidth: 100, minHeight: 100)
-                    .cornerRadius(8)
+        StaggeredGrid(list: viewModel.cats, columns: 2, showsIndicators: false, spacing: 8) { item in
+            AsyncImage(url: viewModel.catImageUrl(for: item.id)) { phase in
+                switch phase {
+                    case .empty:
+                        ProgressView() // Placeholder while loading
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .cornerRadius(10)
+                            .clipped()
+                    case .failure(let error):
+                        Image(systemName: "photo") // Error fallback
+                            .onAppear {
+                                print(error.localizedDescription)
+                            }
+                    @unknown default:
+                        EmptyView()
                 }
             }
-            .safeAreaPadding(.horizontal, 20)
         }
         .onAppear {
             viewModel.fetchCats()
@@ -105,4 +95,58 @@ struct HomeView: View {
 
 #Preview {
     HomeView()
+}
+
+struct StaggeredGrid<Content: View, T: Identifiable>: View where T: Hashable {
+    var content: (T) -> Content
+    var list: [T]
+    var columns: Int
+    var showsIndicators: Bool
+    var spacing: CGFloat
+
+    init(
+        list: [T],
+        columns: Int,
+        showsIndicators: Bool,
+        spacing: CGFloat,
+        @ViewBuilder content: @escaping (T) -> Content
+    ) {
+        self.content = content
+        self.list = list
+        self.columns = columns
+        self.showsIndicators = showsIndicators
+        self.spacing = spacing
+    }
+
+    var body: some View {
+        ScrollView(.vertical, showsIndicators: showsIndicators) {
+            HStack(alignment: .top) {
+                ForEach(setupList(), id: \.self) { gridItem in
+                    LazyVStack(spacing: spacing) {
+                        ForEach(gridItem) { object in
+                            content(object)
+                        }
+                    }
+                }
+            }
+            .padding(.vertical)
+        }
+    }
+
+    func setupList() -> [[T]] {
+        var gridArray: [[T]] = Array(repeating: [], count: columns)
+        var currentIndex = 0
+
+        for object in list {
+            gridArray[currentIndex].append(object)
+
+            if currentIndex == (columns - 1) {
+                currentIndex = 0
+            } else {
+                currentIndex += 1
+            }
+        }
+
+        return gridArray
+    }
 }

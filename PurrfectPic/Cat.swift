@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Cat: Codable, Identifiable {
+struct Cat: Codable, Identifiable, Equatable, Hashable {
     let id: String
     let tags: [String]
     let mimetype: String
