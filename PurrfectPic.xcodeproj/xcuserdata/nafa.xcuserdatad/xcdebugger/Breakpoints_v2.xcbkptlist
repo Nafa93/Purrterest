@@ -14,9 +14,9 @@
             filePath = "PurrfectPic/HomeView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "53"
-            endingLineNumber = "53"
-            landmarkName = "getAll()"
+            startingLineNumber = "54"
+            endingLineNumber = "54"
+            landmarkName = "getAll(skip:limit:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -24,7 +24,7 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "4A186D63-BA01-4CEC-9D92-EE90BD22C882"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "PurrfectPic/HomeView.swift"

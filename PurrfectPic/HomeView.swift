@@ -49,17 +49,20 @@ final class CatRepository {
         self.networkManager = networkManager
     }
 
-    func getAll() async throws -> [Cat] {
-        try await networkManager.fetch(from: "https://cataas.com/api/cats?limit=30")
+    func getAll(skip: Int, limit: Int) async throws -> [Cat] {
+        print("fetching from https://cataas.com/api/cats?limit=\(limit)&skip=\(skip)")
+        return try await networkManager.fetch(from: "https://cataas.com/api/cats?limit=\(limit)&skip=\(skip)")
     }
 
-    func getImageData(for cat: Cat) async throws -> Data {
-        try await networkManager.fetchData(from: "https://cataas.com/cat/\(cat.id)")
+    func getImageData(for id: String) async throws -> Data {
+        try await networkManager.fetchData(from: "https://cataas.com/cat/\(id)")
     }
 }
 
 @Observable final class HomeViewModel {
     private let repository: CatRepository
+    private var index = 0
+    private let limit = 30
 
     var cats: [Cat] = []
 
@@ -73,8 +76,8 @@ final class CatRepository {
     func fetchCats() {
         Task {
             do {
-                cats = try await repository.getAll()
-
+                cats += try await repository.getAll(skip: index, limit: limit)
+                index += limit
                 loadCatImages()
             } catch {
                 print(error)
@@ -89,7 +92,7 @@ final class CatRepository {
 
             for cat in cats {
                 do {
-                    let data = try await repository.getImageData(for: cat)
+                    let data = try await repository.getImageData(for: cat.id)
                     if let uiImage = UIImage(data: data) {
                         result[cat] = Image(uiImage: uiImage)
                     }
@@ -110,7 +113,13 @@ struct HomeView: View {
         @Bindable var viewModel = viewModel
 
         StaggeredGrid(list: viewModel.cats, columns: 2, spacing: 8) { item in
-            CachedAsyncImage(image: $viewModel.catImages[item])
+
+            AsyncImageView(imageUrl: item.id)
+                .onAppear {
+                    if item == viewModel.cats.last {
+                        viewModel.fetchCats()
+                    }
+                }
         }
         .safeAreaPadding(.horizontal, 24)
         .onAppear {
@@ -174,19 +183,39 @@ struct StaggeredGrid<Content: View, T: Identifiable>: View where T: Hashable {
     }
 }
 
-struct CachedAsyncImage: View {
-    @Binding var image: Image?
+@Observable final class AsyncImageViewModel {
+    private var repository: CatRepository
+    private let imageUrl: String
+    var image: Image?
 
+    init(repository: CatRepository, imageUrl: String) {
+        self.repository = repository
+        self.imageUrl = imageUrl
+    }
+
+    @MainActor
+    func loadImage() {
+        Task {
+            let imageData = try await repository.getImageData(for: imageUrl)
+            if let uiImage = UIImage(data: imageData) {
+                self.image = Image(uiImage: uiImage)
+            }
+        }
+    }
+}
+
+struct AsyncImageView: View {
+    private var viewModel: AsyncImageViewModel
     private let randomShimmerHeight: CGFloat
 
-    init(image: Binding<Image?>) {
-        self._image = image
+    init(imageUrl: String) {
         self.randomShimmerHeight = CGFloat(Int.random(in: 50..<100))
+        self.viewModel = AsyncImageViewModel(repository: CatRepository(), imageUrl: imageUrl)
     }
 
     var body: some View {
         Group {
-            if let image = image {
+            if let image = viewModel.image {
                 image
                     .resizable()
                     .aspectRatio(contentMode: .fit)
@@ -199,6 +228,9 @@ struct CachedAsyncImage: View {
                     .frame(height: randomShimmerHeight)
                     .shimmer()
             }
+        }
+        .onAppear {
+            viewModel.loadImage()
         }
     }
 }
