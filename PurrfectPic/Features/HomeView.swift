@@ -32,12 +32,16 @@ import SwiftUI
 }
 
 struct HomeView: View {
+    @Environment(Router.self) var router
     var viewModel: HomeViewModel = HomeViewModel()
 
     var body: some View {
         @Bindable var viewModel = viewModel
         StaggeredGrid(items: viewModel.cats, columns: 2, spacing: 8) { item in
             AsyncImageView(imageUrl: item.id)
+                .onTapGesture {
+                    router.homePath.append(Router.Route.imageDetail(item))
+                }
                 .onAppear {
                     if item == viewModel.cats.last {
                         viewModel.fetchCats()
