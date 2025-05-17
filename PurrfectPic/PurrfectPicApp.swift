@@ -10,6 +10,14 @@ import SwiftUI
 @Observable final class Router {
     enum Route: Hashable {
         case imageDetail(Cat)
+
+        @ViewBuilder
+        var destination: some View {
+            switch self {
+                case .imageDetail(let cat):
+                    ImageDetailView(viewModel: ImageDetailViewModel(mainCat: cat))
+            }
+        }
     }
 
     var homePath = NavigationPath()
@@ -30,7 +38,7 @@ struct PurrfectPicApp: App {
                     NavigationStack(path: $router.homePath) {
                         HomeView(viewModel: homeViewModel)
                             .navigationDestination(for: Router.Route.self) { route in
-                                ImageDetail()
+                                route.destination
                             }
                     }
                 } label: {
@@ -41,7 +49,7 @@ struct PurrfectPicApp: App {
                     NavigationStack(path: $router.likesPath) {
                         LikesView()
                             .navigationDestination(for: Router.Route.self) { route in
-                                ImageDetail()
+                                route.destination
                             }
                     }
                 } label: {

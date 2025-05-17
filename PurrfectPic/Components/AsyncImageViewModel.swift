@@ -35,7 +35,7 @@ struct AsyncImageView: View {
     private let randomShimmerHeight: CGFloat
 
     init(viewModel: AsyncImageViewModel) {
-        self.randomShimmerHeight = CGFloat(Int.random(in: 50..<100))
+        self.randomShimmerHeight = CGFloat(Int.random(in: 100..<300))
         self.viewModel = viewModel
     }
 
