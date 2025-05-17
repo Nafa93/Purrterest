@@ -12,13 +12,15 @@ import SwiftUI
     private let imageUrl: String
     var image: Image?
 
-    init(repository: CatRepository, imageUrl: String) {
+    init(repository: CatRepository = CatRepository(), imageUrl: String) {
         self.repository = repository
         self.imageUrl = imageUrl
     }
 
     @MainActor
     func loadImage() {
+        guard image == nil else { return }
+
         Task {
             let imageData = try await repository.getImageData(for: imageUrl)
             if let uiImage = UIImage(data: imageData) {
@@ -32,9 +34,9 @@ struct AsyncImageView: View {
     private var viewModel: AsyncImageViewModel
     private let randomShimmerHeight: CGFloat
 
-    init(imageUrl: String) {
+    init(viewModel: AsyncImageViewModel) {
         self.randomShimmerHeight = CGFloat(Int.random(in: 50..<100))
-        self.viewModel = AsyncImageViewModel(repository: CatRepository(), imageUrl: imageUrl)
+        self.viewModel = viewModel
     }
 
     var body: some View {

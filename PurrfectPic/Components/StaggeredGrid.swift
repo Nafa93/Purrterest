@@ -28,9 +28,9 @@ struct StaggeredGrid<Content: View, T: Identifiable>: View where T: Hashable {
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
             HStack(alignment: .top) {
-                ForEach(gridArrays(), id: \.self) { gridArray in
+                ForEach(0..<gridArrays.count, id: \.self) { gridArrayIndex in
                     LazyVStack(spacing: spacing) {
-                        ForEach(gridArray) { gridItem in
+                        ForEach(gridArrays[gridArrayIndex]) { gridItem in
                             content(gridItem)
                         }
                     }
@@ -40,7 +40,8 @@ struct StaggeredGrid<Content: View, T: Identifiable>: View where T: Hashable {
         }
     }
 
-    func gridArrays() -> [[T]] {
+    // I need to cache this otherwise it will be re-rendered every time
+    var gridArrays: [[T]] {
         var gridArrays: [[T]] = Array(repeating: [], count: columns)
         var currentIndex = 0
 

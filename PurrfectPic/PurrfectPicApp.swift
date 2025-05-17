@@ -19,6 +19,7 @@ import SwiftUI
 @main
 struct PurrfectPicApp: App {
     private var router = Router()
+    private var homeViewModel = HomeViewModel()
 
     var body: some Scene {
         WindowGroup {
@@ -27,7 +28,7 @@ struct PurrfectPicApp: App {
             TabView {
                 Tab {
                     NavigationStack(path: $router.homePath) {
-                        HomeView()
+                        HomeView(viewModel: homeViewModel)
                             .navigationDestination(for: Router.Route.self) { route in
                                 ImageDetail()
                             }

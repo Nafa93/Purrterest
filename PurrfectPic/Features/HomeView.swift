@@ -13,6 +13,7 @@ import SwiftUI
     private let limit = 30
 
     var cats: [Cat] = []
+    var imageViewModels: [Cat: AsyncImageViewModel] = [:]
 
     init(repository: CatRepository = CatRepository()) {
         self.repository = repository
@@ -23,6 +24,11 @@ import SwiftUI
         Task {
             do {
                 cats += try await repository.getAll(skip: index, limit: limit)
+
+                imageViewModels = cats.reduce(into: [:], { partialResult, cat in
+                    partialResult[cat] = AsyncImageViewModel(imageUrl: cat.id)
+                })
+
                 index += limit
             } catch {
                 print(error)
@@ -33,20 +39,22 @@ import SwiftUI
 
 struct HomeView: View {
     @Environment(Router.self) var router
-    var viewModel: HomeViewModel = HomeViewModel()
+    var viewModel: HomeViewModel
 
     var body: some View {
         @Bindable var viewModel = viewModel
         StaggeredGrid(items: viewModel.cats, columns: 2, spacing: 8) { item in
-            AsyncImageView(imageUrl: item.id)
-                .onTapGesture {
-                    router.homePath.append(Router.Route.imageDetail(item))
-                }
-                .onAppear {
-                    if item == viewModel.cats.last {
-                        viewModel.fetchCats()
+            if let imageViewModel = viewModel.imageViewModels[item] {
+                AsyncImageView(viewModel: imageViewModel)
+                    .onTapGesture {
+                        router.homePath.append(Router.Route.imageDetail(item))
                     }
-                }
+                    .onAppear {
+                        if item == viewModel.cats.last {
+                            viewModel.fetchCats()
+                        }
+                    }
+            }
         }
         .safeAreaPadding(.horizontal, 24)
         .onAppear {
@@ -56,5 +64,5 @@ struct HomeView: View {
 }
 
 #Preview {
-    HomeView()
+    HomeView(viewModel: HomeViewModel())
 }
