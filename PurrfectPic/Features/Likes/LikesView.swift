@@ -7,26 +7,6 @@
 
 import SwiftUI
 
-@Observable final class LikesViewModel {
-    let likedCatsRepository: LikedCatsRepository
-
-    var likedCats: [Cat] = []
-    var imageViewModels: [Cat: CatCardViewModel] = [:]
-
-    init(likedCatsRepository: LikedCatsRepository) {
-        self.likedCatsRepository = likedCatsRepository
-    }
-
-    @MainActor
-    func fetchLikedCats() {
-        self.likedCats = likedCatsRepository.fetchAll()
-
-        self.imageViewModels = likedCats.reduce(into: [:], { partialResult, cat in
-            partialResult[cat] = CatCardViewModel(likedCatsRepository: likedCatsRepository, cat: cat)
-        })
-    }
-}
-
 struct LikesView: View {
     @Environment(Router.self) private var router
     @State private var viewModel: LikesViewModel
