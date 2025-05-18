@@ -32,11 +32,11 @@ import SwiftUI
 
 struct AsyncImageView: View {
     private var viewModel: AsyncImageViewModel
-    private let randomShimmerHeight: CGFloat
+    private var onPictureTapped: (() -> Void)?
 
-    init(viewModel: AsyncImageViewModel) {
-        self.randomShimmerHeight = CGFloat(Int.random(in: 100..<300))
+    init(viewModel: AsyncImageViewModel, onPictureTapped: (() -> Void)? = nil) {
         self.viewModel = viewModel
+        self.onPictureTapped = onPictureTapped
     }
 
     var body: some View {
@@ -47,16 +47,31 @@ struct AsyncImageView: View {
                     .aspectRatio(contentMode: .fit)
                     .cornerRadius(10)
                     .clipped()
+                    .onTapGesture {
+                        onPictureTapped?()
+                    }
             } else {
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.gray.opacity(0.8))
-                    .redacted(reason: .placeholder)
-                    .frame(height: randomShimmerHeight)
-                    .shimmer()
+                PlaceholderView()
             }
         }
         .onAppear {
             viewModel.loadImage()
         }
+    }
+}
+
+struct PlaceholderView: View {
+    private let randomHeight: CGFloat
+
+    init() {
+        self.randomHeight = CGFloat(Int.random(in: 100..<300))
+    }
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: 8)
+            .fill(Color.gray.opacity(0.8))
+            .redacted(reason: .placeholder)
+            .frame(height: randomHeight)
+            .shimmer()
     }
 }

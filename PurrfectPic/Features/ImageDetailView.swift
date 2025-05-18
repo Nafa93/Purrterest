@@ -9,11 +9,12 @@ import SwiftUI
 
 @Observable final class ImageDetailViewModel {
     private let repository: CatRepository
-    private var index = 0
-    private let limit = 30
+//    private var index = 0
+//    private let limit = 30
 
     var mainCat: (cat: Cat, viewModel: AsyncImageViewModel)
-    var cats: [Cat] = []
+    var cats: Set<Cat> = []
+    var tags: [String] = []
     var imageViewModels: [Cat: AsyncImageViewModel] = [:]
 
     init(repository: CatRepository = CatRepository(), mainCat: Cat) {
@@ -25,19 +26,35 @@ import SwiftUI
     func fetchCats() {
         Task {
             do {
-                let newCats = try await repository.getAll(skip: index, limit: limit)
+                for tag in mainCat.cat.tags {
+                    // Remove duplicates
+                    var newCats = Set(try await repository.getAll(tags: [tag]))
 
-                cats += newCats
+                    newCats.remove(mainCat.cat)
 
-                let newImageViewModels = newCats.reduce(into: [:], { partialResult, cat in
-                    partialResult[cat] = AsyncImageViewModel(imageUrl: cat.id)
-                })
+                    cats = cats.union(newCats)
 
-                imageViewModels.merge(newImageViewModels) { current, new in
-                    return new
+                    let newImageViewModels = cats.reduce(into: [:], { partialResult, cat in
+                        partialResult[cat] = AsyncImageViewModel(imageUrl: cat.id)
+                    })
+
+                    imageViewModels.merge(newImageViewModels) { current, new in
+                        return new
+                    }
                 }
 
-                index += limit
+            } catch {
+                print(error)
+            }
+        }
+    }
+
+    @MainActor
+    func fetchTags() {
+        Task {
+            do {
+                let newTags = try await repository.getTags()
+                tags = Array(newTags.shuffled().prefix(upTo: 5))
             } catch {
                 print(error)
             }
@@ -53,25 +70,69 @@ struct ImageDetailView: View {
         ScrollView(.vertical, showsIndicators: false) {
             AsyncImageView(viewModel: viewModel.mainCat.viewModel)
 
-            Divider()
+            if !viewModel.tags.isEmpty {
+                VStack(spacing: 8) {
+                    Divider()
 
-            StaggeredGrid(items: viewModel.cats, columns: 2, spacing: 8) { item in
-                if let imageViewModel = viewModel.imageViewModels[item] {
-                    AsyncImageView(viewModel: imageViewModel)
-                        .onTapGesture {
-                            router.homePath.append(Router.Route.imageDetail(item))
+                    Text("More cats with these tags:")
+                        .font(.subheadline)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                    HStack(spacing: 8) {
+                        ForEach(viewModel.mainCat.cat.tags, id: \.self) { tag in
+                            Text(tag.uppercased())
+                                .font(.caption)
+                                .foregroundStyle(.white)
+                                .padding(.vertical, 4)
+                                .padding(.horizontal, 8)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 4)
+                                        .fill(.blue)
+                                )
                         }
-                        .onAppear {
-                            if item == viewModel.cats.last {
-                                viewModel.fetchCats()
-                            }
-                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
-            .onAppear {
-                if viewModel.cats.isEmpty {
-                    viewModel.fetchCats()
+
+            StaggeredGrid(items: Array(viewModel.cats), columns: 2, spacing: 8) { item in
+                if let imageViewModel = viewModel.imageViewModels[item] {
+                    AsyncImageView(viewModel: imageViewModel) {
+                        router.homePath.append(Router.Route.imageDetail(item))
+                    }
                 }
+            }
+
+            VStack(spacing: 8) {
+                Divider()
+
+                Text("Explore:")
+                    .font(.subheadline)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                LazyVGrid(columns: [.init(.flexible()), .init(.flexible())]) {
+                    ForEach(viewModel.tags, id: \.self) { tag in
+                        Text(tag)
+                            .font(.subheadline)
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(.blue)
+                            )
+                    }
+                }
+            }
+        }
+        .padding(.horizontal, 24)
+        .onAppear {
+            if viewModel.cats.isEmpty {
+                viewModel.fetchCats()
+            }
+
+            if viewModel.tags.isEmpty {
+                viewModel.fetchTags()
             }
         }
     }

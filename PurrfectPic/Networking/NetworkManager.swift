@@ -20,16 +20,24 @@ final class NetworkManager {
         self.urlSession = URLSession(configuration: config)
     }
 
-    func fetch<T: Decodable>(from urlString: String) async throws -> T {
-        let data = try await fetchData(from: urlString)
+    func fetch<T: Decodable>(from endpoint: Endpoint) async throws -> T {
+        let data = try await fetchData(from: endpoint)
 
         return try JSONDecoder().decode(T.self, from: data)
     }
 
-    func fetchData(from urlString: String) async throws -> Data {
-        guard let url = URL(string: urlString) else {
+    func fetchData(from endpoint: Endpoint) async throws -> Data {
+        var components = URLComponents(string: endpoint.baseUrl + endpoint.path)
+
+        components?.queryItems = endpoint.parameters.map { key, value in
+            URLQueryItem(name: key, value: value)
+        }
+
+        guard let url = components?.url else {
             throw URLError(.badURL)
         }
+
+        print("Fetching from \(url.absoluteString)")
 
         let (data, response) = try await urlSession.data(from: url)
 
