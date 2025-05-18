@@ -10,50 +10,47 @@ import SwiftUI
 @Observable final class Router {
     enum Route: Hashable {
         case imageDetail(Cat)
-
-        @ViewBuilder
-        var destination: some View {
-            switch self {
-                case .imageDetail(let cat):
-                    ImageDetailView(viewModel: ImageDetailViewModel(mainCat: cat))
-            }
-        }
     }
+
+    let coreDataRepository = CoreDataRepository()
 
     var homePath = NavigationPath()
     var likesPath = NavigationPath()
+
+    @ViewBuilder
+    func destination(for route: Route) -> some View {
+        switch route {
+            case .imageDetail(let cat):
+                ImageDetailView(viewModel: ImageDetailViewModel(coreDataRepository: coreDataRepository, mainCat: cat))
+        }
+    }
 }
 
 @main
 struct PurrfectPicApp: App {
-    private var router = Router()
-    private var homeViewModel = HomeViewModel()
+    private let router = Router()
 
     var body: some Scene {
         WindowGroup {
             @Bindable var router = router
 
             TabView {
-                Tab {
+                Tab("Home", systemImage: "house") {
                     NavigationStack(path: $router.homePath) {
-                        HomeView(viewModel: homeViewModel)
+                        HomeView(viewModel: HomeViewModel(coreDataRepository: router.coreDataRepository))
                             .navigationDestination(for: Router.Route.self) { route in
-                                route.destination
+                                router.destination(for: route)
                             }
                     }
-                } label: {
-                    Image(systemName: "house")
                 }
 
-                Tab {
+                Tab("Likes", systemImage: "heart") {
                     NavigationStack(path: $router.likesPath) {
                         LikesView()
                             .navigationDestination(for: Router.Route.self) { route in
-                                route.destination
+                                router.destination(for: route)
                             }
                     }
-                } label: {
-                    Image(systemName: "heart")
                 }
             }
             .environment(router)

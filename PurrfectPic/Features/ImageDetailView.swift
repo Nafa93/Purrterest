@@ -9,17 +9,17 @@ import SwiftUI
 
 @Observable final class ImageDetailViewModel {
     private let repository: CatRepository
-//    private var index = 0
-//    private let limit = 30
+    private let coreDataRepository: CoreDataRepository
 
-    var mainCat: (cat: Cat, viewModel: AsyncImageViewModel)
+    var mainCat: (cat: Cat, viewModel: CatCardViewModel)
     var cats: Set<Cat> = []
     var tags: [String] = []
-    var imageViewModels: [Cat: AsyncImageViewModel] = [:]
+    var imageViewModels: [Cat: CatCardViewModel] = [:]
 
-    init(repository: CatRepository = CatRepository(), mainCat: Cat) {
+    init(repository: CatRepository = CatRepository(), coreDataRepository: CoreDataRepository, mainCat: Cat) {
         self.repository = repository
-        self.mainCat = (mainCat, AsyncImageViewModel(imageUrl: mainCat.id))
+        self.coreDataRepository = coreDataRepository
+        self.mainCat = (mainCat, CatCardViewModel(coreDataRepository: coreDataRepository, cat: mainCat))
     }
 
     @MainActor
@@ -27,7 +27,6 @@ import SwiftUI
         Task {
             do {
                 for tag in mainCat.cat.tags {
-                    // Remove duplicates
                     var newCats = Set(try await repository.getAll(tags: [tag]))
 
                     newCats.remove(mainCat.cat)
@@ -35,7 +34,7 @@ import SwiftUI
                     cats = cats.union(newCats)
 
                     let newImageViewModels = cats.reduce(into: [:], { partialResult, cat in
-                        partialResult[cat] = AsyncImageViewModel(imageUrl: cat.id)
+                        partialResult[cat] = CatCardViewModel(coreDataRepository: coreDataRepository, cat: cat)
                     })
 
                     imageViewModels.merge(newImageViewModels) { current, new in
@@ -68,7 +67,7 @@ struct ImageDetailView: View {
 
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
-            AsyncImageView(viewModel: viewModel.mainCat.viewModel)
+            CatCardView(viewModel: viewModel.mainCat.viewModel)
 
             if !viewModel.tags.isEmpty {
                 VStack(spacing: 8) {
@@ -97,7 +96,7 @@ struct ImageDetailView: View {
 
             StaggeredGrid(items: Array(viewModel.cats), columns: 2, spacing: 8) { item in
                 if let imageViewModel = viewModel.imageViewModels[item] {
-                    AsyncImageView(viewModel: imageViewModel) {
+                    CatCardView(viewModel: imageViewModel) {
                         router.homePath.append(Router.Route.imageDetail(item))
                     }
                 }
@@ -139,5 +138,15 @@ struct ImageDetailView: View {
 }
 
 #Preview {
-    ImageDetailView(viewModel: ImageDetailViewModel(mainCat: Cat(id: "", tags: [], mimetype: "", createdAt: "")))
+    ImageDetailView(
+        viewModel: ImageDetailViewModel(
+            coreDataRepository: CoreDataRepository(inMemory: true),
+            mainCat: Cat(
+                id: "",
+                tags: [],
+                mimetype: "",
+                createdAt: ""
+            )
+        )
+    )
 }

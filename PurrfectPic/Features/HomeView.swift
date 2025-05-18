@@ -9,14 +9,16 @@ import SwiftUI
 
 @Observable final class HomeViewModel {
     private let repository: CatRepository
+    private let coreDataRepository: CoreDataRepository
     private var index = 0
     private let limit = 30
 
     var cats: [Cat] = []
-    var imageViewModels: [Cat: AsyncImageViewModel] = [:]
+    var imageViewModels: [Cat: CatCardViewModel] = [:]
 
-    init(repository: CatRepository = CatRepository()) {
+    init(repository: CatRepository = CatRepository(), coreDataRepository: CoreDataRepository) {
         self.repository = repository
+        self.coreDataRepository = coreDataRepository
     }
 
     @MainActor
@@ -28,7 +30,7 @@ import SwiftUI
                 cats += newCats
 
                 let newImageViewModels = newCats.reduce(into: [:], { partialResult, cat in
-                    partialResult[cat] = AsyncImageViewModel(imageUrl: cat.id)
+                    partialResult[cat] = CatCardViewModel(coreDataRepository: coreDataRepository, cat: cat)
                 })
 
                 imageViewModels.merge(newImageViewModels) { current, new in
@@ -52,7 +54,7 @@ struct HomeView: View {
         ScrollView(.vertical, showsIndicators: false) {
             StaggeredGrid(items: viewModel.cats, columns: 2, spacing: 8) { item in
                 if let imageViewModel = viewModel.imageViewModels[item] {
-                    AsyncImageView(viewModel: imageViewModel)
+                    CatCardView(viewModel: imageViewModel)
                         .onTapGesture {
                             router.homePath.append(Router.Route.imageDetail(item))
                         }
@@ -74,5 +76,5 @@ struct HomeView: View {
 }
 
 #Preview {
-    HomeView(viewModel: HomeViewModel())
+    HomeView(viewModel: HomeViewModel(coreDataRepository: CoreDataRepository(inMemory: true)))
 }

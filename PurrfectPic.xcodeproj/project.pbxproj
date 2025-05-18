@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		19C45FDD2DDA523D004DED88 /* CoreDataCat+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19C45FDB2DDA523D004DED88 /* CoreDataCat+CoreDataClass.swift */; };
+		19C45FDE2DDA523D004DED88 /* CoreDataCat+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19C45FDC2DDA523D004DED88 /* CoreDataCat+CoreDataProperties.swift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		195359DC2DD55AFF006C3A6F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,6 +32,8 @@
 		195359CB2DD55AFD006C3A6F /* PurrfectPic.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PurrfectPic.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		195359DB2DD55AFF006C3A6F /* PurrfectPicTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PurrfectPicTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		195359E52DD55AFF006C3A6F /* PurrfectPicUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PurrfectPicUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		19C45FDB2DDA523D004DED88 /* CoreDataCat+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "CoreDataCat+CoreDataClass.swift"; path = "PurrfectPic/CoreData/CoreDataCat+CoreDataClass.swift"; sourceTree = "<group>"; };
+		19C45FDC2DDA523D004DED88 /* CoreDataCat+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "CoreDataCat+CoreDataProperties.swift"; path = "PurrfectPic/CoreData/CoreDataCat+CoreDataProperties.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -75,6 +82,8 @@
 		195359C22DD55AFD006C3A6F = {
 			isa = PBXGroup;
 			children = (
+				19C45FDB2DDA523D004DED88 /* CoreDataCat+CoreDataClass.swift */,
+				19C45FDC2DDA523D004DED88 /* CoreDataCat+CoreDataProperties.swift */,
 				195359CD2DD55AFD006C3A6F /* PurrfectPic */,
 				195359DE2DD55AFF006C3A6F /* PurrfectPicTests */,
 				195359E82DD55AFF006C3A6F /* PurrfectPicUITests */,
@@ -236,6 +245,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				19C45FDD2DDA523D004DED88 /* CoreDataCat+CoreDataClass.swift in Sources */,
+				19C45FDE2DDA523D004DED88 /* CoreDataCat+CoreDataProperties.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
