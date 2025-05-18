@@ -12,16 +12,29 @@ import SwiftUI
         case imageDetail(Cat)
     }
 
-    let coreDataRepository = CoreDataRepository()
+    let coreDataManager: CoreDataManager
+    let likedCatsRepository: LikedCatsRepository
 
     var homePath = NavigationPath()
     var likesPath = NavigationPath()
+
+    init(homePath: NavigationPath = NavigationPath(), likesPath: NavigationPath = NavigationPath()) {
+        self.coreDataManager = CoreDataManager()
+        self.likedCatsRepository = LikedCatsRepository(coreDataManager: coreDataManager)
+        self.homePath = homePath
+        self.likesPath = likesPath
+    }
 
     @ViewBuilder
     func destination(for route: Route) -> some View {
         switch route {
             case .imageDetail(let cat):
-                ImageDetailView(viewModel: ImageDetailViewModel(coreDataRepository: coreDataRepository, mainCat: cat))
+                ImageDetailView(
+                    viewModel: ImageDetailViewModel(
+                        likedCatsRepository: likedCatsRepository,
+                        mainCat: cat
+                    )
+                )
         }
     }
 }
@@ -37,7 +50,7 @@ struct PurrfectPicApp: App {
             TabView {
                 Tab("Home", systemImage: "house") {
                     NavigationStack(path: $router.homePath) {
-                        HomeView(viewModel: HomeViewModel(coreDataRepository: router.coreDataRepository))
+                        HomeView(viewModel: HomeViewModel(likedCatsRepository: router.likedCatsRepository))
                             .navigationDestination(for: Router.Route.self) { route in
                                 router.destination(for: route)
                             }

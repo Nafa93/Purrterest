@@ -10,56 +10,53 @@ import CoreData
 
 @Observable final class CatCardViewModel {
     private var repository: CatRepository
-    private var coreDataRepository: CoreDataRepository
+    private var likedCatsRepository: LikedCatsRepository
     var cat: Cat
-    var image: Image?
-    var imageData: Data?
     var isLiked: Bool = false
 
-    init(repository: CatRepository = CatRepository(), coreDataRepository: CoreDataRepository, cat: Cat) {
+    init(repository: CatRepository = CatRepository(), likedCatsRepository: LikedCatsRepository, cat: Cat) {
         self.repository = repository
-        self.coreDataRepository = coreDataRepository
+        self.likedCatsRepository = likedCatsRepository
         self.cat = cat
     }
 
     @MainActor
-    func loadImage() {
-        guard image == nil else { return }
-
-        Task {
-            let imageData = try await repository.getImageData(for: cat.id)
-            self.imageData = imageData
-            self.image = parseToImage(data: imageData)
+    func upsertToCoreData() {
+        if isLiked {
+            removeFromCoreData()
+        } else {
+            saveToCoreData()
         }
     }
 
+    @MainActor
+    func loadImage() {
+        guard cat.imageData == nil else { return }
+
+        Task {
+            cat.imageData = try await repository.getImageData(for: cat.id)
+        }
+    }
+
+    @MainActor
     func saveToCoreData() {
-        guard let imageData else { return }
-        coreDataRepository.save(cat: cat, image: imageData)
+        likedCatsRepository.save(cat: cat)
         self.isLiked = true
     }
 
+    @MainActor
     func removeFromCoreData() {
-
+        likedCatsRepository.delete(with: cat.id)
+        self.isLiked = false
     }
 
     @MainActor
     func fetchFromCoreData() {
-        if let (cat, imageData) = coreDataRepository.fetch(with: cat.id) {
+        if let cat = likedCatsRepository.fetch(with: cat.id) {
             self.cat = cat
-            self.imageData = imageData
-            self.image = parseToImage(data: imageData)
             self.isLiked = true
         } else {
             loadImage()
-        }
-    }
-
-    private func parseToImage(data: Data) -> Image? {
-        if let uiImage = UIImage(data: data) {
-            return Image(uiImage: uiImage)
-        } else {
-            return nil
         }
     }
 }
@@ -76,7 +73,7 @@ struct CatCardView: View {
 
     var body: some View {
         Group {
-            if let image = viewModel.image {
+            if let image = viewModel.cat.image {
                 ZStack(alignment: .bottomTrailing) {
                     image
                         .resizable()
@@ -88,7 +85,7 @@ struct CatCardView: View {
                         }
 
                     Button {
-                        viewModel.saveToCoreData()
+                        viewModel.upsertToCoreData()
                     } label: {
                         Image(systemName: viewModel.isLiked ? "heart.fill" : "heart")
                             .foregroundStyle(viewModel.isLiked ? .red : .black)

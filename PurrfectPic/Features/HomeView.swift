@@ -9,16 +9,19 @@ import SwiftUI
 
 @Observable final class HomeViewModel {
     private let repository: CatRepository
-    private let coreDataRepository: CoreDataRepository
+    private let likedCatsRepository: LikedCatsRepository
     private var index = 0
     private let limit = 30
 
     var cats: [Cat] = []
     var imageViewModels: [Cat: CatCardViewModel] = [:]
 
-    init(repository: CatRepository = CatRepository(), coreDataRepository: CoreDataRepository) {
+    init(
+        repository: CatRepository = CatRepository(),
+        likedCatsRepository: LikedCatsRepository
+    ) {
         self.repository = repository
-        self.coreDataRepository = coreDataRepository
+        self.likedCatsRepository = likedCatsRepository
     }
 
     @MainActor
@@ -30,7 +33,7 @@ import SwiftUI
                 cats += newCats
 
                 let newImageViewModels = newCats.reduce(into: [:], { partialResult, cat in
-                    partialResult[cat] = CatCardViewModel(coreDataRepository: coreDataRepository, cat: cat)
+                    partialResult[cat] = CatCardViewModel(likedCatsRepository: likedCatsRepository, cat: cat)
                 })
 
                 imageViewModels.merge(newImageViewModels) { current, new in
@@ -76,5 +79,11 @@ struct HomeView: View {
 }
 
 #Preview {
-    HomeView(viewModel: HomeViewModel(coreDataRepository: CoreDataRepository(inMemory: true)))
+    HomeView(
+        viewModel: HomeViewModel(
+            likedCatsRepository: LikedCatsRepository(
+                coreDataManager:  CoreDataManager(inMemory: true)
+            )
+        )
+    )
 }

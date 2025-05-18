@@ -9,17 +9,27 @@ import SwiftUI
 
 @Observable final class ImageDetailViewModel {
     private let repository: CatRepository
-    private let coreDataRepository: CoreDataRepository
+    private let likedCatsRepository: LikedCatsRepository
 
     var mainCat: (cat: Cat, viewModel: CatCardViewModel)
     var cats: Set<Cat> = []
     var tags: [String] = []
     var imageViewModels: [Cat: CatCardViewModel] = [:]
 
-    init(repository: CatRepository = CatRepository(), coreDataRepository: CoreDataRepository, mainCat: Cat) {
+    init(
+        repository: CatRepository = CatRepository(),
+        likedCatsRepository: LikedCatsRepository,
+        mainCat: Cat
+    ) {
         self.repository = repository
-        self.coreDataRepository = coreDataRepository
-        self.mainCat = (mainCat, CatCardViewModel(coreDataRepository: coreDataRepository, cat: mainCat))
+        self.likedCatsRepository = likedCatsRepository
+        self.mainCat = (
+            mainCat,
+            CatCardViewModel(
+                likedCatsRepository: likedCatsRepository,
+                cat: mainCat
+            )
+        )
     }
 
     @MainActor
@@ -34,7 +44,7 @@ import SwiftUI
                     cats = cats.union(newCats)
 
                     let newImageViewModels = cats.reduce(into: [:], { partialResult, cat in
-                        partialResult[cat] = CatCardViewModel(coreDataRepository: coreDataRepository, cat: cat)
+                        partialResult[cat] = CatCardViewModel(likedCatsRepository: likedCatsRepository, cat: cat)
                     })
 
                     imageViewModels.merge(newImageViewModels) { current, new in
@@ -140,7 +150,9 @@ struct ImageDetailView: View {
 #Preview {
     ImageDetailView(
         viewModel: ImageDetailViewModel(
-            coreDataRepository: CoreDataRepository(inMemory: true),
+            likedCatsRepository: LikedCatsRepository(
+                coreDataManager: CoreDataManager(inMemory: true)
+            ),
             mainCat: Cat(
                 id: "",
                 tags: [],
