@@ -57,15 +57,14 @@ struct HomeView: View {
         ScrollView(.vertical, showsIndicators: false) {
             StaggeredGrid(items: viewModel.cats, columns: 2, spacing: 8) { item in
                 if let imageViewModel = viewModel.imageViewModels[item] {
-                    CatCardView(viewModel: imageViewModel)
-                        .onTapGesture {
-                            router.homePath.append(Router.Route.imageDetail(item))
+                    CatCardView(viewModel: imageViewModel) {
+                        router.homePath.append(Router.Route.imageDetail(item))
+                    }
+                    .onAppear {
+                        if item == viewModel.cats.last {
+                            viewModel.fetchCats()
                         }
-                        .onAppear {
-                            if item == viewModel.cats.last {
-                                viewModel.fetchCats()
-                            }
-                        }
+                    }
                 }
             }
             .safeAreaPadding(.horizontal, 24)

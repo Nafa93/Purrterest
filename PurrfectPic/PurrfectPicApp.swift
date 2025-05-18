@@ -15,10 +15,13 @@ import SwiftUI
     let coreDataManager: CoreDataManager
     let likedCatsRepository: LikedCatsRepository
 
-    var homePath = NavigationPath()
-    var likesPath = NavigationPath()
+    var homePath: NavigationPath
+    var likesPath: NavigationPath
 
-    init(homePath: NavigationPath = NavigationPath(), likesPath: NavigationPath = NavigationPath()) {
+    init(
+        homePath: NavigationPath = NavigationPath(),
+        likesPath: NavigationPath = NavigationPath()
+    ) {
         self.coreDataManager = CoreDataManager()
         self.likedCatsRepository = LikedCatsRepository(coreDataManager: coreDataManager)
         self.homePath = homePath
