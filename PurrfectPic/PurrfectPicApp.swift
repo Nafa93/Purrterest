@@ -62,7 +62,7 @@ struct PurrfectPicApp: App {
 
                 Tab("Likes", systemImage: "heart") {
                     NavigationStack(path: $router.likesPath) {
-                        LikesView()
+                        LikesView(viewModel: LikesViewModel(likedCatsRepository: router.likedCatsRepository))
                             .navigationDestination(for: Router.Route.self) { route in
                                 router.destination(for: route)
                             }

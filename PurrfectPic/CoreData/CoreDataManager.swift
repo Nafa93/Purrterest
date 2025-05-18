@@ -33,6 +33,12 @@ final class LikedCatsRepository {
         guard let coreDataCat = coreDataManager.fetch(with: id) else { return nil }
         return Cat.initFromCoreData(data: coreDataCat)
     }
+
+    func fetchAll() -> [Cat] {
+        let coreDataCats = coreDataManager.fetchAll()
+
+        return coreDataCats.compactMap { Cat.initFromCoreData(data: $0) }
+    }
 }
 
 final class CoreDataManager {
@@ -72,5 +78,15 @@ final class CoreDataManager {
         request.fetchLimit = 1
 
         return try? container.viewContext.fetch(request).first
+    }
+
+    func fetchAll() -> [CoreDataCat] {
+        let request: NSFetchRequest<CoreDataCat> = CoreDataCat.fetchRequest()
+
+        do {
+            return try container.viewContext.fetch(request)
+        } catch {
+            return []
+        }
     }
 }

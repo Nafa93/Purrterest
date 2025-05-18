@@ -99,6 +99,7 @@ struct CatCardView: View {
                 }
             } else {
                 PlaceholderView()
+//                    .shimmer()
             }
         }
         .onAppear {
@@ -119,6 +120,5 @@ struct PlaceholderView: View {
             .fill(Color.gray.opacity(0.8))
             .redacted(reason: .placeholder)
             .frame(height: randomHeight)
-            .shimmer()
     }
 }
