@@ -20,7 +20,7 @@ import SwiftUI
     }
 
     init(
-        repository: CatRepository = CatRepository(),
+        repository: CatRepository = NetworkCatRepository(),
         likedCatsRepository: LikedCatsRepository,
         mainCat: Cat
     ) {
@@ -42,7 +42,7 @@ import SwiftUI
         Task {
             do {
                 for tag in mainCat.cat.tags {
-                    var newCats = Set(try await repository.getAll(tags: [tag]))
+                    var newCats = Set(try await repository.getAll(skip: nil, limit: nil, tags: [tag]))
 
                     newCats.remove(mainCat.cat)
 

@@ -20,7 +20,7 @@ import SwiftUI
     }
 
     init(
-        repository: CatRepository = CatRepository(),
+        repository: CatRepository = NetworkCatRepository(),
         likedCatsRepository: LikedCatsRepository,
         cat: Cat
     ) {

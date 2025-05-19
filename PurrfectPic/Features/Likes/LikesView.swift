@@ -37,7 +37,7 @@ struct LikesView: View {
 #Preview {
     LikesView(
         viewModel: LikesViewModel(
-            likedCatsRepository: LikedCatsRepository(
+            likedCatsRepository: NetworkLikedCatsRepository(
                 coreDataManager: CoreDataManager(
                     inMemory: false
                 )

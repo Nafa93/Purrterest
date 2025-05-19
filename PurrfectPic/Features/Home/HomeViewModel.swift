@@ -21,7 +21,7 @@ import SwiftUI
     }
 
     init(
-        catRepository: CatRepository = CatRepository(),
+        catRepository: CatRepository = NetworkCatRepository(),
         likedCatsRepository: LikedCatsRepository,
         tag: String = ""
     ) {

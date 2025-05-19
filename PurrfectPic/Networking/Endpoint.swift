@@ -1,8 +1,8 @@
 //
-//  CatRepository.swift
+//  Endpoint.swift
 //  PurrfectPic
 //
-//  Created by Nicolas Alejandro Fernandez Amorosino on 17/05/2025.
+//  Created by Nicolas Alejandro Fernandez Amorosino on 18/05/2025.
 //
 
 import Foundation
@@ -47,25 +47,5 @@ enum Endpoint {
 
     var baseUrl: String {
         "https://cataas.com/"
-    }
-}
-
-final class CatRepository {
-    private let networkManager: NetworkManager
-
-    init(networkManager: NetworkManager = NetworkManager()) {
-        self.networkManager = networkManager
-    }
-
-    func getAll(skip: Int? = nil, limit: Int? = nil, tags: [String] = []) async throws -> [Cat] {
-        return try await networkManager.fetch(from: Endpoint.getAll(skip: skip, limit: limit, tags: tags))
-    }
-
-    func getImageData(for id: String) async throws -> Data {
-        try await networkManager.fetchData(from: Endpoint.getImage(catId: id))
-    }
-
-    func getTags() async throws -> [String] {
-        try await networkManager.fetch(from: Endpoint.getAllTags)
     }
 }

@@ -20,7 +20,7 @@ import SwiftUI
 
     init() {
         self.coreDataManager = CoreDataManager()
-        self.likedCatsRepository = LikedCatsRepository(coreDataManager: coreDataManager)
+        self.likedCatsRepository = NetworkLikedCatsRepository(coreDataManager: coreDataManager)
     }
 
     @ViewBuilder

@@ -57,7 +57,7 @@ struct ImageDetailView: View {
 #Preview {
     ImageDetailView(
         viewModel: ImageDetailViewModel(
-            likedCatsRepository: LikedCatsRepository(
+            likedCatsRepository: NetworkLikedCatsRepository(
                 coreDataManager: CoreDataManager(inMemory: true)
             ),
             mainCat: Cat(

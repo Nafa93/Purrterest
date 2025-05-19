@@ -41,7 +41,7 @@ struct HomeView: View {
 #Preview {
     HomeView(
         viewModel: HomeViewModel(
-            likedCatsRepository: LikedCatsRepository(
+            likedCatsRepository: NetworkLikedCatsRepository(
                 coreDataManager:  CoreDataManager(inMemory: true)
             )
         )
