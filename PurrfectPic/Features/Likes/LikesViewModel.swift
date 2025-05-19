@@ -19,10 +19,10 @@ import SwiftUI
 
     @MainActor
     func fetchLikedCats() {
-        self.likedCats = likedCatsRepository.fetchAll()
+        let newCats = likedCatsRepository.fetchAll()
 
-        self.imageViewModels = likedCats.reduce(into: [:], { partialResult, cat in
-            partialResult[cat] = CatCardViewModel(likedCatsRepository: likedCatsRepository, cat: cat)
-        })
+        self.likedCats = newCats
+
+        self.imageViewModels = CatCardViewModel.build(from: Set(newCats), likedCatsRepository: likedCatsRepository)
     }
 }

@@ -27,9 +27,9 @@ struct ImageDetailView: View {
 
                 StaggeredGrid(items: Array(viewModel.cats), columns: 2, spacing: 8) { item in
                     if let imageViewModel = viewModel.imageViewModels[item] {
-                        CatCardView(viewModel: imageViewModel) {
+                        CatCardView(viewModel: imageViewModel, onPictureTapped: {
                             router.path.append(Router.Route.imageDetail(item))
-                        }
+                        })
                     }
                 }
 
