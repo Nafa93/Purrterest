@@ -19,7 +19,11 @@ import SwiftUI
         isLiked ? .red : .black
     }
 
-    init(repository: CatRepository = CatRepository(), likedCatsRepository: LikedCatsRepository, cat: Cat) {
+    init(
+        repository: CatRepository = CatRepository(),
+        likedCatsRepository: LikedCatsRepository,
+        cat: Cat
+    ) {
         self.repository = repository
         self.likedCatsRepository = likedCatsRepository
         self.cat = cat
@@ -28,7 +32,7 @@ import SwiftUI
     @MainActor
     func fetchFromCoreData() {
         if let cat = likedCatsRepository.fetch(with: cat.id) {
-            self.cat = cat
+            self.cat.imageData = cat.imageData
             self.isLiked = true
         } else {
             loadImage()
@@ -38,8 +42,6 @@ import SwiftUI
 
     @MainActor
     func loadImage() {
-        guard cat.imageData == nil else { return }
-
         Task {
             cat.imageData = try await repository.getImageData(for: cat.id)
         }
@@ -57,12 +59,26 @@ import SwiftUI
     @MainActor
     private func saveToCoreData() {
         likedCatsRepository.save(cat: cat)
-        self.isLiked = true
+        isLiked = true
     }
 
     @MainActor
     private func removeFromCoreData() {
         likedCatsRepository.delete(with: cat.id)
-        self.isLiked = false
+        isLiked = false
+    }
+}
+
+extension CatCardViewModel {
+    static func build(from cats: Set<Cat>, likedCatsRepository: LikedCatsRepository) -> [Cat: CatCardViewModel] {
+        return cats.reduce(into: [:], { partialResult, cat in
+            partialResult[cat] = CatCardViewModel(likedCatsRepository: likedCatsRepository, cat: cat)
+        })
+    }
+
+    static func mergeDictionaries(sourceA: [Cat: CatCardViewModel], sourceB: [Cat: CatCardViewModel]) -> [Cat: CatCardViewModel] {
+        return sourceA.merging(sourceB) { current, new in
+            return new
+        }
     }
 }

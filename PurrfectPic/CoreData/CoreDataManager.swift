@@ -27,13 +27,17 @@ final class CoreDataManager {
     }
 
     func save() {
-        try? container.viewContext.save()
+        do {
+            try container.viewContext.save()
+        } catch {
+            print("Failed to save context. Error \(error.localizedDescription)")
+        }
     }
 
     func delete(with id: String) {
         guard let savedCat = fetch(with: id) else { return }
         container.viewContext.delete(savedCat)
-        try? container.viewContext.save()
+        save()
     }
 
     func fetch(with id: String) -> CoreDataCat? {
@@ -43,7 +47,13 @@ final class CoreDataManager {
 
         request.fetchLimit = 1
 
-        return try? container.viewContext.fetch(request).first
+        do {
+            return try container.viewContext.fetch(request).first
+        } catch {
+            print("Failed to fetch item. Error \(error.localizedDescription)")
+        }
+
+        return nil
     }
 
     func fetchAll() -> [CoreDataCat] {
@@ -52,7 +62,9 @@ final class CoreDataManager {
         do {
             return try container.viewContext.fetch(request)
         } catch {
-            return []
+            print("Failed to fetch items. Error \(error.localizedDescription)")
         }
+
+        return []
     }
 }

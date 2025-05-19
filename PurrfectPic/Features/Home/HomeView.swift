@@ -13,11 +13,12 @@ struct HomeView: View {
 
     var body: some View {
         @Bindable var viewModel = viewModel
+        
         ScrollView(.vertical, showsIndicators: false) {
             StaggeredGrid(items: viewModel.cats, columns: 2, spacing: 8) { item in
                 if let imageViewModel = viewModel.imageViewModels[item] {
                     CatCardView(viewModel: imageViewModel) {
-                        router.homePath.append(Router.Route.imageDetail(item))
+                        router.path.append(Router.Route.imageDetail(item))
                     }
                     .onAppear {
                         if item == viewModel.cats.last {
@@ -28,6 +29,7 @@ struct HomeView: View {
             }
             .safeAreaPadding(.horizontal, 24)
         }
+        .navigationTitle(viewModel.title)
         .onAppear {
             if viewModel.cats.isEmpty {
                 viewModel.fetchCats()

@@ -20,7 +20,9 @@ struct LikesView: View {
             StaggeredGrid(items: viewModel.likedCats, columns: 2, spacing: 8) { item in
                 if let imageViewModel = viewModel.imageViewModels[item] {
                     CatCardView(viewModel: imageViewModel) {
-                        router.likesPath.append(Router.Route.imageDetail(item))
+                        router.path.append(Router.Route.imageDetail(item))
+                    } onLikeTapped: {
+                        viewModel.fetchLikedCats()
                     }
                 }
             }

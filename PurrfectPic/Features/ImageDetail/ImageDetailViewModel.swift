@@ -15,6 +15,9 @@ import SwiftUI
     var cats: Set<Cat> = []
     var tags: [String] = []
     var imageViewModels: [Cat: CatCardViewModel] = [:]
+    var shouldDisplayMainCatTags: Bool {
+        return !cats.isEmpty && !mainCat.cat.tags.isEmpty
+    }
 
     init(
         repository: CatRepository = CatRepository(),
@@ -34,6 +37,8 @@ import SwiftUI
 
     @MainActor
     func fetchCats() {
+        guard cats.isEmpty else { return }
+
         Task {
             do {
                 for tag in mainCat.cat.tags {
@@ -43,29 +48,27 @@ import SwiftUI
 
                     cats = cats.union(newCats)
 
-                    let newImageViewModels = cats.reduce(into: [:], { partialResult, cat in
-                        partialResult[cat] = CatCardViewModel(likedCatsRepository: likedCatsRepository, cat: cat)
-                    })
+                    let newViewModels = CatCardViewModel.build(from: newCats, likedCatsRepository: likedCatsRepository)
 
-                    imageViewModels.merge(newImageViewModels) { current, new in
-                        return new
-                    }
+                    imageViewModels = CatCardViewModel.mergeDictionaries(sourceA: imageViewModels, sourceB: newViewModels)
                 }
 
             } catch {
-                print(error)
+                print("Failed to fetch cats. Error: \(error.localizedDescription)")
             }
         }
     }
 
     @MainActor
     func fetchTags() {
+        guard tags.isEmpty else { return }
+
         Task {
             do {
                 let newTags = try await repository.getTags()
-                tags = Array(newTags.shuffled().prefix(upTo: 5))
+                tags = Array(newTags.shuffled().prefix(upTo: 6))
             } catch {
-                print(error)
+                print("Failed to fetch tags. Error: \(error.localizedDescription)")
             }
         }
     }

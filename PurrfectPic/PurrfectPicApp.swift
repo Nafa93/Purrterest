@@ -10,22 +10,17 @@ import SwiftUI
 @Observable final class Router {
     enum Route: Hashable {
         case imageDetail(Cat)
+        case home(String)
     }
 
     let coreDataManager: CoreDataManager
     let likedCatsRepository: LikedCatsRepository
 
-    var homePath: NavigationPath
-    var likesPath: NavigationPath
+    var path = NavigationPath()
 
-    init(
-        homePath: NavigationPath = NavigationPath(),
-        likesPath: NavigationPath = NavigationPath()
-    ) {
+    init() {
         self.coreDataManager = CoreDataManager()
         self.likedCatsRepository = LikedCatsRepository(coreDataManager: coreDataManager)
-        self.homePath = homePath
-        self.likesPath = likesPath
     }
 
     @ViewBuilder
@@ -38,38 +33,45 @@ import SwiftUI
                         mainCat: cat
                     )
                 )
+            case .home(let tag):
+                HomeView(
+                    viewModel: HomeViewModel(likedCatsRepository: likedCatsRepository, tag: tag)
+                )
         }
     }
 }
 
 @main
 struct PurrfectPicApp: App {
-    private let router = Router()
+    private let homeRouter = Router()
+    private let likesRouter = Router()
 
     var body: some Scene {
         WindowGroup {
-            @Bindable var router = router
+            @Bindable var homeRouter = homeRouter
+            @Bindable var likesRouter = likesRouter
 
             TabView {
                 Tab("Home", systemImage: "house") {
-                    NavigationStack(path: $router.homePath) {
-                        HomeView(viewModel: HomeViewModel(likedCatsRepository: router.likedCatsRepository))
+                    NavigationStack(path: $homeRouter.path) {
+                        HomeView(viewModel: HomeViewModel(likedCatsRepository: homeRouter.likedCatsRepository))
                             .navigationDestination(for: Router.Route.self) { route in
-                                router.destination(for: route)
+                                homeRouter.destination(for: route)
                             }
                     }
+                    .environment(homeRouter)
                 }
 
                 Tab("Likes", systemImage: "heart") {
-                    NavigationStack(path: $router.likesPath) {
-                        LikesView(viewModel: LikesViewModel(likedCatsRepository: router.likedCatsRepository))
+                    NavigationStack(path: $likesRouter.path) {
+                        LikesView(viewModel: LikesViewModel(likedCatsRepository: likesRouter.likedCatsRepository))
                             .navigationDestination(for: Router.Route.self) { route in
-                                router.destination(for: route)
+                                likesRouter.destination(for: route)
                             }
                     }
+                    .environment(likesRouter)
                 }
             }
-            .environment(router)
         }
     }
 }

@@ -8,41 +8,43 @@
 import SwiftUI
 
 @Observable final class HomeViewModel {
-    private let repository: CatRepository
+    private let catRepository: CatRepository
     private let likedCatsRepository: LikedCatsRepository
     private var index = 0
     private let limit = 30
 
     var cats: [Cat] = []
     var imageViewModels: [Cat: CatCardViewModel] = [:]
+    var tag: String
+    var title: String {
+        tag != "" ? tag : "Purrterest"
+    }
 
     init(
-        repository: CatRepository = CatRepository(),
-        likedCatsRepository: LikedCatsRepository
+        catRepository: CatRepository = CatRepository(),
+        likedCatsRepository: LikedCatsRepository,
+        tag: String = ""
     ) {
-        self.repository = repository
+        self.catRepository = catRepository
         self.likedCatsRepository = likedCatsRepository
+        self.tag = tag
     }
 
     @MainActor
     func fetchCats() {
         Task {
             do {
-                let newCats = try await repository.getAll(skip: index, limit: limit)
+                let newCats = Set(try await catRepository.getAll(skip: index, limit: limit, tags: [tag]))
 
-                cats += newCats
+                cats.append(contentsOf: newCats)
 
-                let newImageViewModels = newCats.reduce(into: [:], { partialResult, cat in
-                    partialResult[cat] = CatCardViewModel(likedCatsRepository: likedCatsRepository, cat: cat)
-                })
+                let newViewModels = CatCardViewModel.build(from: newCats, likedCatsRepository: likedCatsRepository)
 
-                imageViewModels.merge(newImageViewModels) { current, new in
-                    return new
-                }
+                imageViewModels = CatCardViewModel.mergeDictionaries(sourceA: imageViewModels, sourceB: newViewModels)
 
                 index += limit
             } catch {
-                print(error)
+                print("Failed to fetch cats. Error: \(error.localizedDescription)")
             }
         }
     }

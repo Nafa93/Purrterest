@@ -11,10 +11,16 @@ struct CatCardView: View {
     @Environment(\.managedObjectContext) private var context
     @State private var viewModel: CatCardViewModel
     private var onPictureTapped: (() -> Void)?
+    private var onLikeTapped: (() -> Void)?
 
-    init(viewModel: CatCardViewModel, onPictureTapped: (() -> Void)? = nil) {
+    init(
+        viewModel: CatCardViewModel,
+        onPictureTapped: (() -> Void)? = nil,
+        onLikeTapped: (() -> Void)? = nil
+    ) {
         self.viewModel = viewModel
         self.onPictureTapped = onPictureTapped
+        self.onLikeTapped = onLikeTapped
     }
 
     var body: some View {
@@ -32,12 +38,13 @@ struct CatCardView: View {
 
                     Button {
                         viewModel.upsertToCoreData()
+                        onLikeTapped?()
                     } label: {
                         Image(systemName: viewModel.heartImageName)
                             .foregroundStyle(viewModel.heartImageColor)
                             .padding(8)
                             .background(
-                                RoundedRectangle(cornerRadius: 8)
+                                RoundedRectangle(cornerRadius: 10)
                                     .fill(.white)
                             )
                     }

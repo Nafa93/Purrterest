@@ -8,14 +8,14 @@
 import SwiftUI
 
 struct PlaceholderView: View {
-    private let randomHeight: CGFloat
+    private var randomHeight: CGFloat
 
     init() {
         self.randomHeight = CGFloat(Int.random(in: 100..<300))
     }
 
     var body: some View {
-        RoundedRectangle(cornerRadius: 8)
+        RoundedRectangle(cornerRadius: 10)
             .fill(Color.gray.opacity(0.8))
             .redacted(reason: .placeholder)
             .frame(height: randomHeight)
