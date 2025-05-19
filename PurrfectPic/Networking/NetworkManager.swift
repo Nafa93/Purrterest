@@ -37,8 +37,6 @@ final class NetworkManager {
             throw URLError(.badURL)
         }
 
-        print("Fetching from \(url.absoluteString)")
-
         let (data, response) = try await urlSession.data(from: url)
 
         guard let httpResponse = response as? HTTPURLResponse,

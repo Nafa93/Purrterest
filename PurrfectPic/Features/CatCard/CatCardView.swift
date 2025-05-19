@@ -52,7 +52,6 @@ struct CatCardView: View {
                 }
             } else {
                 PlaceholderView()
-//                    .shimmer()
             }
         }
         .onAppear {

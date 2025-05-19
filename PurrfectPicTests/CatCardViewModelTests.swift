@@ -99,4 +99,17 @@ final class CatCardViewModelTests: XCTestCase {
         // Then
         XCTAssertEqual(sut.heartImageColor, .red)
     }
+
+    func test_viewModelBuilder() {
+        // Given
+        let cats = [mockCat(), mockCat()]
+
+        // When
+        let viewModels = CatCardViewModel.build(from: Set(cats), likedCatsRepository: MockLikedCatsRepository())
+
+        // Then
+        XCTAssertEqual(viewModels.count, 2)
+        XCTAssertNotNil(viewModels[cats[0]])
+        XCTAssertNotNil(viewModels[cats[1]])
+    }
 }
