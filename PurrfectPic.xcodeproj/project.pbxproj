@@ -47,11 +47,6 @@
 			path = PurrfectPicTests;
 			sourceTree = "<group>";
 		};
-		195359E82DD55AFF006C3A6F /* PurrfectPicUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = PurrfectPicUITests;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -86,7 +81,6 @@
 				19C45FDC2DDA523D004DED88 /* CoreDataCat+CoreDataProperties.swift */,
 				195359CD2DD55AFD006C3A6F /* PurrfectPic */,
 				195359DE2DD55AFF006C3A6F /* PurrfectPicTests */,
-				195359E82DD55AFF006C3A6F /* PurrfectPicUITests */,
 				195359CC2DD55AFD006C3A6F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -161,9 +155,6 @@
 			);
 			dependencies = (
 				195359E72DD55AFF006C3A6F /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				195359E82DD55AFF006C3A6F /* PurrfectPicUITests */,
 			);
 			name = PurrfectPicUITests;
 			packageProductDependencies = (
